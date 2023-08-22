@@ -32,38 +32,47 @@ end
 
 disp("The new images are currently being aligned, please wait...");
 
-% len = 9;    % Adjust the length of motion (e.g., 9 pixels)
-% theta = 0;  % Set theta to 0 for horizontal motion
-% h_motion = fspecial('motion', len, theta);
-
 for i = 1:size(imagesStructGray,2)-1
 
     image1 = removeStragglers(findLargestSection(imagesStructGray(i).image));
-%     image1 = imfilter(double(image1), h_motion, 'replicate');
-%     image1 = imfilter(double(image1), fspecial('sobel'), 'replicate');
-
     image2 = removeStragglers(findLargestSection(imagesStructGray(i+1).image));
-%     image2 = imfilter(double(image2), h_motion, 'replicate');
-%     image2 = imfilter(double(image2), fspecial('sobel'), 'replicate');
 
-% Display the images currently being shifted and compared to.
-%     close all;
-%     figure;
-%     subplot(1, 2, 1);
-%     imshow(image1);
-%     title("Image 1");
-%     
-%     subplot(1, 2, 2);
-%     imshow(image2);
-%     title("Image 2");
-
-%     imshow(image2);
     % Calculate the cross correlation of the matrixes.
-    C = normxcorr2(image1, image2);
+    CY = normxcorr2(image1, image2);
     % Find the location of the higest cross correlation value. The positon of the highest
     % number in the cross correlation output is the amount of pixels that
     % need tp be shifted.
-    [yPeak, xPeak] = find(C == max(C(:)));
+    [yPeak, xPeakFake] = find(CY == max(CY(:)));
+
+    image3 = removeStragglersGray(findLargestSectionGray(imagesStructGray(i).image));
+    image4 = removeStragglersGray(findLargestSectionGray(imagesStructGray(i+1).image));
+
+    close all;
+    figure;
+    
+    subplot(2, 2, 1);
+    imshow(image1);
+    title("Image 1");
+    
+    subplot(2, 2, 2);
+    imshow(image2);
+    title("Image 2");
+    
+    % Assuming you have image3 and image4 defined somewhere in your code
+    subplot(2, 2, 3);
+    imshow(image3);
+    title("Image 3");
+    
+    subplot(2, 2, 4);
+    imshow(image4);
+    title("Image 4");
+
+    % Calculate the cross correlation of the matrixes.
+    CX = normxcorr2(image3, image4);
+    % Find the location of the higest cross correlation value. The positon of the highest
+    % number in the cross correlation output is the amount of pixels that
+    % need tp be shifted.
+    [yPeakFake, xPeak] = find(CX == max(CX(:)));
 
     % Calculate the offset of the image.
     yOffset = yPeak - size(imagesStructGray(1).image, 1);
@@ -71,12 +80,11 @@ for i = 1:size(imagesStructGray,2)-1
 
     disp(num2str(i+1) + " x Offset: " + xOffset)
     disp(num2str(i+1) + " y Offset: " + yOffset)
-%     disp([num2str(i), "/", num2str(size(imagesStructGray,2))])
     
     for j = 1:size(imagesStructRGB(1).image,3)
         % The xOffset is currently equal to 0 because its giving me this
         % weird issue with the last few pictures.
-        imagesStructRGB(i+1).image(:,:,j) = circshift(imagesStructRGB(i+1).image(:,:,j), [-yOffset, 0]);
+        imagesStructRGB(i+1).image(:,:,j) = circshift(imagesStructRGB(i+1).image(:,:,j), [-yOffset, -xOffset]);
 
 %         This code below shifts the x axis, currently, it doesn't shift the x-axis.
 %         imagesStructRGB(i+1).image(:,:,j) = circshift(imagesStructRGB(i+1).image(:,:,j), [-yOffset, -xOffset]);
@@ -84,7 +92,7 @@ for i = 1:size(imagesStructGray,2)-1
 
     % Shift the gray image as well
 %     This code below shifts the x axis, currently, it doesn't shift the x-axis.
-    imagesStructGray(i+1).image = circshift(imagesStructGray(i+1).image, [-yOffset, 0]);
+    imagesStructGray(i+1).image = circshift(imagesStructGray(i+1).image, [-yOffset, -xOffset]);
 %     imagesStructGray(i+1).image = circshift(imagesStructGray(i+1).image, [-yOffset, -xOffset]);
 end
 

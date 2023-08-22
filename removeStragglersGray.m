@@ -1,25 +1,24 @@
-function modifiedMatrix = removeStragglers(matrix)
+function modifiedMatrix = removeStragglersGray(matrix)
     [numRows, numCols] = size(matrix);
     modifiedMatrix = matrix;
-    atleastHalf = zeros(1,numRows);
+    atleastHalf = zeros(1, numRows);
 
     for i = 1:numRows
         row = matrix(i, :);
         numZeros = sum(row == 0);
-        numOnes = sum(row == 255);
+        numNonZeros = sum(row ~= 0); % Count non-zero elements
 
-        if numOnes >= numZeros && numOnes >= numCols / 2
-            atleastHalf(1,i) = 1;
+        if numNonZeros >= numZeros && numNonZeros >= numCols / 2
+            atleastHalf(1, i) = 1;
         end
     end
 
     for i = 1:numRows
         row = matrix(i, :);
         numZeros = sum(row == 0);
+
         if numZeros > numCols / 2
             x = isWithin(find(atleastHalf == 1), i);
-            % x is within the tolerance, it is within a nother row that
-            % meets the requirements.
             if x == true
                 continue
             end

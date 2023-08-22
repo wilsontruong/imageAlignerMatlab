@@ -1,0 +1,16 @@
+function [outputArg1,outputArg2] = customCorrelation(m1,m2)
+    [row, col]= size(m1);
+    corMatrix = zeros(row, col);
+    % POSITIVE FOR CIRCSHIFT MEANS RIGHT AND DOWN.
+   
+    for i = 1:row
+        m1 = circshift(m1,[i-1,0]);
+        for j = 1:col
+            m2 = circshift(m2,[i-1,0]);
+
+            result
+            corMatrix(i,j) = sum(result(:));
+        end
+    end
+end
+
